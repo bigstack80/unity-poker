@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class DealCards : MonoBehaviour {
 
@@ -64,28 +65,54 @@ public class DealCards : MonoBehaviour {
     // this method gets called when the player clicks the discard button.
     public void playerDiscard()
     {
-        GameObject currentPlayer = players[0];
-        Card[] cards = currentPlayer.GetComponent<PlayerScript>().cards;
-
-        foreach (Card card in cards)
+        for (int i = 0; i < players.Length; i++)
         {
-            if (card != null)
+            GameObject currentPlayer = players[currentPlayerIndex];
+            Card[] cards = currentPlayer.GetComponent<PlayerScript>().cards;
+
+            // let the AI take their turn
+            if (currentPlayer.GetComponent<PlayerScript>().playerNumber != 1)
             {
-                GameObject cardGameObject = GameObject.Find(card.getUnityMapping() + "(Clone)");
-                if (cardGameObject.GetComponent<CardScript>().selected)
+                var aiDecider = new AiDecider();
+                var discardCards = aiDecider.aiTurn(currentPlayer.GetComponent<PlayerScript>().hand);
+
+                foreach (Card removing in discardCards)
                 {
-                    var discardLocation = cardGameObject.transform.position;
-                    var discardIndex = currentPlayer.GetComponent<PlayerScript>().getCardIndex(card);
-                    currentPlayer.GetComponent<PlayerScript>().replaceCard(deck.draw(), discardIndex, cardGameObject);
-                    discardCard(cardGameObject);                    
+                    var removingIndex = currentPlayer.GetComponent<PlayerScript>().getCardIndex(removing);
+                    currentPlayer.GetComponent<PlayerScript>().addCard(deck.draw(), removingIndex);
                 }
+            }
+
+            //Player selection
+            else
+            {
+                foreach (Card card in cards)
+                {
+                    if (card != null)
+                    {
+                        GameObject cardGameObject = GameObject.Find(card.getUnityMapping() + "(Clone)");
+                        if (cardGameObject.GetComponent<CardScript>().selected)
+                        {
+                            var discardIndex = currentPlayer.GetComponent<PlayerScript>().getCardIndex(card);
+                            currentPlayer.GetComponent<PlayerScript>().replaceCard(deck.draw(), discardIndex, cardGameObject);
+                            discardCard(cardGameObject);
+                        }
+                    }
+                }
+            }
+
+            if (currentPlayerIndex == players.Length - 1)
+            {
+                currentPlayerIndex = 0;
+            } else
+            {
+                currentPlayerIndex++;
             }
         }
     }
 
     public void discardCard(GameObject card)
     {
-        var newCardLocation = card.transform.position;
         card.transform.position = discardLocation;
         card.transform.eulerAngles = rotation;
         discardLocation.y += .0001f;
@@ -113,8 +140,6 @@ public class DealCards : MonoBehaviour {
         pokerHand.setPokerHand(playerScript.cards);
         playerScript.hand = pokerHand;
         
-        Debug.Log( "Player num: " +playerScript.playerNumber + " " + pokerHand.printResult());
-
-        
+        Debug.Log( "Player num: " +playerScript.playerNumber + " " + pokerHand.printResult());     
     }
 }
