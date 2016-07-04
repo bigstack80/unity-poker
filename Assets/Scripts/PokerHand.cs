@@ -55,49 +55,51 @@ public class PokerHand
 
     }
 
-    public static void printResult(Player player)
+    public String printResult()
     {
 
-        if (player.hand.RYL_FLUSH)
+        if (this.RYL_FLUSH)
         {
-            Console.Write("Royal Flush");
+            return "Royal Flush";
         }
-        else if (player.hand.STRAIGHT_FLUSH)
+        else if (this.STRAIGHT_FLUSH)
         {
-            Console.Write("Straight Flush");
+            return "Straight Flush";
         }
-        else if (player.hand.FOUR_A_KIND)
+        else if (this.FOUR_A_KIND)
         {
-            Console.Write("Four of a kind");
+            return "Four of a kind";
         }
-        else if (player.hand.FULL_HOUSE)
+        else if (this.FULL_HOUSE)
         {
-            Console.Write("Full house");
+            return "Full house";
         }
-        else if (player.hand.FLUSH)
+        else if (this.FLUSH)
         {
-            Console.Write("Flush");
+            return "Flush";
         }
-        else if (player.hand.STRIAGHT)
+        else if (this.STRIAGHT)
         {
-            Console.Write("Straight");
+            return "Straight";
         }
-        else if (player.hand.THREE_A_KIND)
+        else if (this.THREE_A_KIND)
         {
-            Console.Write("Three of a kind");
+            return "Three of a kind";
         }
-        else if (player.hand.TWO_PAIR)
+        else if (this.TWO_PAIR)
         {
-            Console.Write("Two Pair");
+            return "Two Pair";
         }
-        else if (player.hand.PAIR)
+        else if (this.PAIR)
         {
-            Console.Write("Pair");
+            return "Pair";
         }
-        else if (player.hand.HIGH_CARD)
+        else if (this.HIGH_CARD)
         {
-            Console.Write("High card");
+            return "High card";
         }
+        else
+            return "error setting hand.";
     }
 
     private bool isRoyal(List<Card> cards)

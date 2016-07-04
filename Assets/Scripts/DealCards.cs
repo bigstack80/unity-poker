@@ -25,7 +25,11 @@ public class DealCards : MonoBehaviour {
         discardFlag = false;
         discardLocation = new Vector3(.3f, .05f, 0);
         rotation = new Vector3(-90, 0, 0);
-        players = GameObject.FindGameObjectsWithTag("Player");
+        GameObject player1 = GameObject.Find("Player1");
+        GameObject player2 = GameObject.Find("Player2");
+        GameObject player3 = GameObject.Find("Player3");
+        GameObject player4 = GameObject.Find("Player4");
+        players = new GameObject[]{ player1, player2, player3, player4};
 
         deck = new Deck();
 	}
@@ -40,6 +44,8 @@ public class DealCards : MonoBehaviour {
     public void deal()
     {
         //for each player deal 5 cards
+        // TODO use the dealer index to start dealing to the next player.
+        // TODO re write deal to deal one card at a time not 5, 5, 5, 5
         foreach (GameObject player in players)
         {
             for (int i = 0; i < 5; i++)
@@ -47,43 +53,39 @@ public class DealCards : MonoBehaviour {
                 Card card = deck.draw();
                 player.GetComponent<PlayerScript>().addCard(card, i);
             }
+            setPokerHand(player);
         }
 
-        setPokerHand();
-
-
-        //discard();
+        // now that all players have been dealt to use the dealer and the current player index to 
+        // keep track of turns.
+        //playerDiscard();
     }
 
-    public void draw(GameObject player, int i)
-    {
-        Card card = deck.draw();
-        player.GetComponent<PlayerScript>().addCard(card, i);
-    }
-
+    // this method gets called when the player clicks the discard button.
     public void playerDiscard()
     {
-        GameObject player1 = GameObject.Find("Player1");
-        Card[] cards = player1.GetComponent<PlayerScript>().cards;
+        GameObject currentPlayer = players[0];
+        Card[] cards = currentPlayer.GetComponent<PlayerScript>().cards;
 
-        var i = 0;
-        foreach (Card card in cards) {
+        foreach (Card card in cards)
+        {
             if (card != null)
             {
                 GameObject cardGameObject = GameObject.Find(card.getUnityMapping() + "(Clone)");
                 if (cardGameObject.GetComponent<CardScript>().selected)
                 {
-                    discardCard(cardGameObject);
-                    draw(player1, i);
+                    var discardLocation = cardGameObject.transform.position;
+                    var discardIndex = currentPlayer.GetComponent<PlayerScript>().getCardIndex(card);
+                    currentPlayer.GetComponent<PlayerScript>().replaceCard(deck.draw(), discardIndex, cardGameObject);
+                    discardCard(cardGameObject);                    
                 }
-                i++;
             }
         }
-        nextTurn();
     }
 
     public void discardCard(GameObject card)
     {
+        var newCardLocation = card.transform.position;
         card.transform.position = discardLocation;
         card.transform.eulerAngles = rotation;
         discardLocation.y += .0001f;
@@ -100,56 +102,19 @@ public class DealCards : MonoBehaviour {
         }
     }
 
-    private void setPokerHand()
+    private void setPokerHand(GameObject player)
     {
-        GameObject currentPlayer = players[currentPlayerIndex];
-        // could use this to control game play
-
         PokerHand pokerHand;
-        PokerHand[] pokerHandList = new PokerHand[4];
-        int i = 0;
-        foreach (GameObject p in players)
-        {
-            var playerScript = p.GetComponent<PlayerScript>();
-            playerScript.sortHand();
 
-            pokerHand = new PokerHand();
-            pokerHand.setPokerHand(playerScript.cards);
-            playerScript.hand = pokerHand;
-            pokerHandList[i] = pokerHand;
-            i++;
-        }
-    }
+        var playerScript = player.GetComponent<PlayerScript>();
+        playerScript.sortHand();
 
-    // this is called when the discard button is clicked.
-    private void nextTurn()
-    {
-        // player one we wait for manual inputs
-        if (currentPlayerIndex == 0)
-        {
-            return;
-        }
+        pokerHand = new PokerHand();
+        pokerHand.setPokerHand(playerScript.cards);
+        playerScript.hand = pokerHand;
+        
+        Debug.Log( "Player num: " +playerScript.playerNumber + " " + pokerHand.printResult());
 
-        //each player has finished their second turn.
-        if (turn == 1 && (currentPlayerIndex == dealerNumber))
-        {
-            return;
-        }
-
-        // the dealer is the last one to get a turn the first draw.
-        else if (currentPlayerIndex == dealerNumber)
-        {
-            turn++;
-        }
-
-        // Increment the player turn.
-        if (currentPlayerIndex == 3)
-        {
-            currentPlayerIndex = 0;
-        }
-        else
-        {
-            currentPlayerIndex++;
-        }
+        
     }
 }
