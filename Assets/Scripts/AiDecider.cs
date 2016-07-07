@@ -161,31 +161,29 @@ public class AiDecider
         List<Card> discard = new List<Card>();
 
         // there are 10 possible straight combos
-        for (int i = 0; i < 9; i++)
+        for (int i = 1; i < 11; i++)
         {
             int count = 0;
-            // five cards in each combo
+            // five cards in each combo card value starting at 2
             for (int j = i; j < i + 5; j++)
             {
                 foreach (Card c in pHand.highCard)
                 {
                     // handle ace being used as a low card striaght 
-                    if (i == 0 && (int)c.value == 12)
+                    if (i == 1 && (int)c.value == 14)
                         count++;
-                    if ((int)c.value == j)
+                    else if ((int)c.value == j)
                         count++;
 
                     if (count == 4)
                     {
-                        // what card is not in our combo
-                        for (int k = i; k < i + 5; k++)
+                        foreach (Card d in pHand.highCard)
                         {
-                            foreach (Card d in pHand.highCard)
-                            {
-                                if ((int)d.value < i || (int)d.value > i + 5)
-                                    discard.Add(d);
-                            }
+                            if ((int)d.value < i || (int)d.value > i + 5)
+                                discard.Add(d);
                         }
+                        // Will this return the lowest straight or highest?
+                        return discard;
                     }
                 }
             }
@@ -197,7 +195,7 @@ public class AiDecider
     {
         List<Card> discard = new List<Card>();
 
-        if ((int)pHand.highCard.ElementAt(0).value == 12)
+        if ((int)pHand.highCard.ElementAt(0).value == 14)
         {
             discard.Add(pHand.highCard.ElementAt(1));
             discard.Add(pHand.highCard.ElementAt(2));

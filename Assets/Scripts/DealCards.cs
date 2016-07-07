@@ -38,6 +38,12 @@ public class DealCards : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
+        if (discardFlag)
+        {
+            getWinningHand();
+            discardFlag = false;
+        }
+
 
 	}
 
@@ -84,7 +90,7 @@ public class DealCards : MonoBehaviour {
             }
 
             //Player selection
-            else
+            else if (currentPlayer.GetComponent<PlayerScript>().playerNumber == 1)
             {
                 foreach (Card card in cards)
                 {
@@ -108,6 +114,16 @@ public class DealCards : MonoBehaviour {
             {
                 currentPlayerIndex++;
             }
+        }
+        discardFlag = true;
+    }
+
+    private void getWinningHand()
+    {
+
+        foreach (GameObject player in players)
+        {
+            setPokerHand(player);
         }
     }
 
