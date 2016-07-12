@@ -430,48 +430,5 @@ public class PokerHand
         }
         this.HIGH_CARD = true;
     }
-
-    public List<Player> breakTie(List<Player> player)
-    {
-        int highestRank, playerRank;
-        List<Player> winningPlayer = player;
-
-        int bounds = player.ElementAt(0).hand.highCard.Count();
-
-        for (int i = 0; i < bounds; i++)
-        {
-            List<Player> tmp = winningPlayer;
-            highestRank = 0;
-
-            // for each card find the highest
-            foreach (Player p in tmp)
-            {
-                playerRank = (int)p.hand.highCard.ElementAt(i).value;
-
-                // find the player with the highest ranking cards
-                if (playerRank > highestRank)
-                {
-                    highestRank = playerRank;
-                }
-            }
-
-            // create a new list of the winniest players
-            winningPlayer = new List<Player>();
-            foreach (Player p in tmp)
-            {
-                playerRank = (int)p.hand.highCard.ElementAt(i).value;
-
-                // eliminate players with crappy cards
-                if (playerRank >= highestRank)
-                {
-                    winningPlayer.Add(p);
-                }
-            }
-
-            if (winningPlayer.Count() == 1)
-                return winningPlayer;
-        }
-        return winningPlayer;
-    }
 }
 
