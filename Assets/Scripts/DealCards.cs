@@ -5,32 +5,28 @@ using UnityEngine;
 public class DealCards : MonoBehaviour {
 
     GameObject[] players;
-    private Vector3 discardLocation;
-    private Vector3 rotation;
     private GameObject discardImage;
-    private bool discardFlag;
+    private GameObject discardPile;
 
     // used to keep track of the current dealer.
     public int dealerNumber;
     // used to keep track of whos turn it is.
     public int currentPlayerIndex;
 
-    private Deck deck;
+    private GameObject deck;
 
 	// Use this for initialization
 	void Start () {
 
         dealerNumber = 0;
-        discardFlag = false;
-        discardLocation = new Vector3(.3f, .05f, 0);
-        rotation = new Vector3(-90, 0, 0);
         GameObject player1 = GameObject.Find("Player1");
         GameObject player2 = GameObject.Find("Player2");
         GameObject player3 = GameObject.Find("Player3");
         GameObject player4 = GameObject.Find("Player4");
+        discardPile = GameObject.Find("DiscardPile");
+        deck = GameObject.Find("Deck");
         players = new GameObject[]{player1, player2, player3, player4};
         currentPlayerIndex = 0;
-        deck = new Deck();
 	}
 	
 	// Update is called once per frame
@@ -42,6 +38,8 @@ public class DealCards : MonoBehaviour {
     // Manager method used to set the over all flow of the match
     public void deal()
     {
+        // reset the current deck
+        deck.GetComponent<DeckScript>().shuffle();
         //for each player deal 5 cards
         // TODO use the dealer index to start dealing to the next player.
         // TODO re write deal to deal one card at a time not 5, 5, 5, 5
@@ -49,15 +47,12 @@ public class DealCards : MonoBehaviour {
         {
             for (int i = 0; i < 5; i++)
             {
-                Card card = deck.draw();
+                GameObject card = deck.GetComponent<DeckScript>().draw();
+                card.GetComponent<CardScript>().setOwner(player.GetComponent<PlayerScript>().playerNumber);
                 player.GetComponent<PlayerScript>().addCard(card, i);
             }
             setPokerHand(player);
         }
-
-        // now that all players have been dealt to use the dealer and the current player index to 
-        // keep track of turns.
-        //playerDiscard();
     }
 
     // this method gets called when the player clicks the discard button.
@@ -66,7 +61,7 @@ public class DealCards : MonoBehaviour {
         for (int i = 0; i < players.Length; i++)
         {
             GameObject currentPlayer = players[currentPlayerIndex];
-            Card[] cards = currentPlayer.GetComponent<PlayerScript>().cards;
+            GameObject[] cards = currentPlayer.GetComponent<PlayerScript>().unityCard;
 
             // let the AI take their turn
             if (currentPlayer.GetComponent<PlayerScript>().playerNumber != 1)
@@ -77,23 +72,24 @@ public class DealCards : MonoBehaviour {
                 foreach (Card removing in discardCards)
                 {
                     var removingIndex = currentPlayer.GetComponent<PlayerScript>().getCardIndex(removing);
-                    currentPlayer.GetComponent<PlayerScript>().addCard(deck.draw(), removingIndex);
+                    currentPlayer.GetComponent<PlayerScript>().addCard(deck.GetComponent<DeckScript>().draw(), removingIndex);
                 }
             }
 
             //Player selection
             else if (currentPlayer.GetComponent<PlayerScript>().playerNumber == 1)
             {
-                foreach (Card card in cards)
+                foreach (GameObject card in cards)
                 {
                     if (card != null)
                     {
-                        GameObject cardGameObject = GameObject.Find(card.getUnityMapping() + "(Clone)");
-                        if (cardGameObject.GetComponent<CardScript>().selected)
+                        //GameObject cardGameObject = GameObject.Find(card.getUnityMapping() + "(Clone)");
+                        if (card.GetComponent<CardScript>().selected)
                         {
                             var discardIndex = currentPlayer.GetComponent<PlayerScript>().getCardIndex(card);
-                            currentPlayer.GetComponent<PlayerScript>().replaceCard(deck.draw(), discardIndex, cardGameObject);
-                            discardCard(cardGameObject);
+                            currentPlayer.GetComponent<PlayerScript>().replaceCard(deck.GetComponent<DeckScript>().draw(), discardIndex, card);
+                            
+                            discardPile.GetComponent<DiscardPileScript>().add(card);
                         }
                     }
                 }
@@ -102,6 +98,28 @@ public class DealCards : MonoBehaviour {
             currentPlayerIndex = (currentPlayerIndex % 3) + 1;
         }
         getWinningHand();
+
+        resetTable();
+        //deal();
+    }
+
+    private void resetTable()
+    {
+        foreach (GameObject player in players)
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                discardPile.GetComponent<DiscardPileScript>().add(player.GetComponent<PlayerScript>().unityCard[i]);
+            }
+            player.GetComponent<PlayerScript>().resetHand();          
+        }
+        discardPile.GetComponent<DiscardPileScript>().reset();
+        GameObject[] remainingCards = GameObject.FindGameObjectsWithTag("discardPile");
+
+        foreach (GameObject card in remainingCards)
+        {
+            Destroy(card);
+        }
     }
 
     private void getWinningHand()
@@ -120,24 +138,6 @@ public class DealCards : MonoBehaviour {
         dealerNumber = (dealerNumber % 3) + 1;
     }
 
-    public void discardCard(GameObject card)
-    {
-        card.transform.position = discardLocation;
-        card.transform.eulerAngles = rotation;
-        discardLocation.y += .0001f;
-
-        // show the discard image on the top of the deck
-        if (!discardFlag)
-        {
-            discardImage = (GameObject)Instantiate(Resources.Load("TopOfDeck"), discardLocation, Quaternion.identity);
-            discardImage.transform.eulerAngles = rotation;
-            discardFlag = true;
-        } else
-        {
-            GameObject.Find("TopOfDeck(Clone)").transform.position = discardLocation;
-        }
-    }
-
     private void setPokerHand(GameObject player)
     {
         PokerHand pokerHand;
@@ -146,7 +146,7 @@ public class DealCards : MonoBehaviour {
         playerScript.sortHand();
 
         pokerHand = new PokerHand();
-        pokerHand.setPokerHand(playerScript.cards);
+        pokerHand.setPokerHand(playerScript.getCards());
         playerScript.hand = pokerHand;
         
         Debug.Log( "Player num: " +playerScript.playerNumber + " " + pokerHand.printResult());     
