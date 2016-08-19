@@ -4,12 +4,10 @@ using System.Collections.Generic;
 
 public class PlayerScript : MonoBehaviour {
 
-    public Card[] cards;
     public double money;
-    public string[] cardMapping;
     public int playerNumber;
     public PokerHand hand;
-
+    public GameObject[] unityCard;
     public Vector3 handLocation;
     public Vector3 offset;
     public Vector3 rotation;
@@ -17,9 +15,7 @@ public class PlayerScript : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-
-        this.cards = new Card[5];
-        this.cardMapping = new string[5];
+        this.unityCard = new GameObject[5];
     }
 	
 	// Update is called once per frame
@@ -27,66 +23,68 @@ public class PlayerScript : MonoBehaviour {
 	
 	}
 
-    public void addCard(Card card, int index)
+    public void addCard(GameObject c, int index)
     {
-        this.cards[index] = card;
-        this.cardMapping[index] = card.getUnityMapping();
-
 
         if (this.playerNumber == 1)
         {
-            GameObject c = (GameObject)Instantiate(Resources.Load(card.getUnityMapping()), handLocation, Quaternion.identity);
             c.transform.eulerAngles = rotation;
+            c.transform.position = handLocation;
             c.transform.position += offset * (index + 1);
+            this.unityCard[index] = c;
         } else
         {
-            GameObject c = (GameObject)Instantiate(Resources.Load("PlayingCard_Revers"), handLocation, Quaternion.identity);
-            c.transform.eulerAngles = rotation;
-            c.transform.position += offset * (index + 1);
-        }
+            GameObject reverse = (GameObject)Instantiate(Resources.Load("PlayingCard_Revers"), handLocation, Quaternion.identity);
+            reverse.transform.eulerAngles = rotation;
+            reverse.transform.position += offset * (index + 1);
+            this.unityCard[index] = c;
+        }       
     }
 
-    public void replaceCard(Card card, int index, GameObject oldCard)
+    public void resetHand()
+    {     
+        this.hand = new PokerHand();
+        this.unityCard = new GameObject[5];
+    }
+
+    public void replaceCard(GameObject c, int index, GameObject oldCard)
     {
-        this.cards[index] = card;
-        this.cardMapping[index] = card.getUnityMapping();
-
-
         if (this.playerNumber == 1)
         {
-            GameObject c = (GameObject)Instantiate(Resources.Load(card.getUnityMapping()), handLocation, Quaternion.identity);
+            //GameObject c = (GameObject)Instantiate(Resources.Load(card.getUnityMapping()), handLocation, Quaternion.identity);
             c.transform.eulerAngles = rotation;
             c.transform.position = new Vector3(oldCard.transform.position.x, oldCard.transform.position.y, oldCard.transform.position.z - .02f);
+            this.unityCard[index] = c;
         }
         else
         {
-            GameObject c = (GameObject)Instantiate(Resources.Load("PlayingCard_Revers"), handLocation, Quaternion.identity);
+            //GameObject c = (GameObject)Instantiate(Resources.Load("PlayingCard_Revers"), handLocation, Quaternion.identity);
             c.transform.eulerAngles = rotation;
             c.transform.position += offset * (index + 1);
+            this.unityCard[index] = c;
         }
     }
 
-    public void removeCard(string discardCard)
+    public void removeCard(GameObject discardCard)
     {
         var i = 0;
-        foreach (Card c in cards)
+        foreach (GameObject c in unityCard)
         {
             i++;
-            string cName = c.getUnityMapping() + "(Clone)";
-            if (cName == discardCard)
+            if (c.Equals(discardCard))
             {
-                cards[i] = null;
+                unityCard[i] = null;
             }
         }
     }
 
-    public bool isPlayerCard(string card)
+    public bool isPlayerCard(GameObject card)
     {
         if (playerNumber == 1)
         {
-            foreach (Card c in cards)
+            foreach (GameObject c in unityCard)
             {
-                if (c.unityMapping.Equals(card + "(Clone)"))
+                if (/*c.unityMapping.Equals(card + "(Clone)")*/ "".Equals(""))
                 {
                     return true;
                 }
@@ -95,11 +93,11 @@ public class PlayerScript : MonoBehaviour {
         return false;
     }
 
-    public int getCardIndex(Card card)
+    public int getCardIndex(GameObject card)
     {
         for (int i = 0; i < 5; i++)
         {
-            if (cards[i].Equals(card))
+            if (unityCard[i].Equals(card))
             {
                 return i;
             }
@@ -109,7 +107,34 @@ public class PlayerScript : MonoBehaviour {
 
     public void sortHand()
     {
-        System.Array.Sort(cards);
+        Card[] cardList = new Card[5];
+        GameObject[] tempList = new GameObject[5];
+
+        int i = 0;
+        foreach (GameObject card in unityCard)
+        {
+            cardList[i++] = card.GetComponent<CardScript>().card;
+        }
+        System.Array.Sort(cardList);
+
+        for (i = 0; i < 5; i++)
+        {
+            foreach (GameObject card in unityCard)
+            {
+                if (card.GetComponent<CardScript>().card.Equals(cardList[i]))
+                {
+                    tempList[i] = card;
+                }
+            }
+        }
+        
+        if (tempList[4] != null)
+        {
+            unityCard = tempList;
+        } else
+        {
+            Debug.Log("Error sorting player Hand.");
+        }
         resetLocation();
     }
 
@@ -118,11 +143,44 @@ public class PlayerScript : MonoBehaviour {
         int i = 0;
         if (this.playerNumber == 1)
         {
-            foreach (Card card in this.cards)
+            /*
+            foreach (GameObject card in this.cards)
             {
                 GameObject cardGameObject = GameObject.Find(card.getUnityMapping() + "(Clone)");
                 cardGameObject.transform.position += offset * (i + 1);
             }
+            */
         }
+    }
+
+    public int getCardIndex(Card card)
+    {
+        int i = 0;
+        foreach (GameObject c in unityCard)
+        {
+            if (c.GetComponent<CardScript>().card.Equals(card))
+            {
+                return i;
+            }
+            i++;
+        }
+        return -1;
+    }
+
+    public Card[] getCards()
+    {
+        Card[] cards = new Card[5];
+        int i = 0;
+        foreach (GameObject c in unityCard)
+        {
+            cards[i++] = c.GetComponent<CardScript>().card;
+        }
+
+        return cards;
+    }
+
+    public GameObject getCardAtIndex(int index)
+    {
+        return unityCard[index];
     }
 }
