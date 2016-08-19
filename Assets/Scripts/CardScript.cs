@@ -5,16 +5,13 @@ using System;
 public class CardScript : MonoBehaviour, IComparable
 {
 
-    public GameObject dealer;
-    public GameObject player1;
     public bool selected = false;
-    private int owner;
+    public int owner;
     public Card card;
 
     // Use this for initialization
     void Start () {
-        dealer = GameObject.Find("Dealer");
-        player1 = GameObject.Find("Player1");
+
 	}
 	
 	// Update is called once per frame

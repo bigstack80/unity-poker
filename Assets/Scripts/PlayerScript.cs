@@ -178,4 +178,9 @@ public class PlayerScript : MonoBehaviour {
 
         return cards;
     }
+
+    public GameObject getCardAtIndex(int index)
+    {
+        return unityCard[index];
+    }
 }

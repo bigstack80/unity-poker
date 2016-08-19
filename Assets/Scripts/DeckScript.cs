@@ -153,4 +153,18 @@ public class DeckScript : MonoBehaviour {
 
         return drawCard;
     }
+
+    public void resetDeck()
+    {
+        foreach (GameObject card in this.cards)
+        {
+            Destroy(card);
+        }
+        this.cards = new List<GameObject>();
+    }
+
+    public List<GameObject> getCards()
+    {
+        return this.cards;
+    }
 }

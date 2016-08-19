@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class DiscardPileScript : MonoBehaviour {
 
-    private List<GameObject> cards;
+    public List<GameObject> cards;
     private GameObject topOfDeck;
 	// Use this for initialization
 	void Start () {

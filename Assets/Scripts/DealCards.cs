@@ -7,6 +7,8 @@ public class DealCards : MonoBehaviour {
     GameObject[] players;
     private GameObject discardImage;
     private GameObject discardPile;
+    private GameObject resultsMessage;
+    private GameObject controllerCanvas;
 
     // used to keep track of the current dealer.
     public int dealerNumber;
@@ -24,10 +26,15 @@ public class DealCards : MonoBehaviour {
         GameObject player3 = GameObject.Find("Player3");
         GameObject player4 = GameObject.Find("Player4");
         discardPile = GameObject.Find("DiscardPile");
+        resultsMessage = GameObject.Find("ResultsCanvas");
+        controllerCanvas = GameObject.Find("ControllerCanvas");
         deck = GameObject.Find("Deck");
         players = new GameObject[]{player1, player2, player3, player4};
         currentPlayerIndex = 0;
-	}
+
+        resultsMessage.SetActive(false);
+        controllerCanvas.SetActive(true);
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -38,6 +45,8 @@ public class DealCards : MonoBehaviour {
     // Manager method used to set the over all flow of the match
     public void deal()
     {
+        resultsMessage.SetActive(false);
+        controllerCanvas.SetActive(true);
         // reset the current deck
         deck.GetComponent<DeckScript>().shuffle();
         //for each player deal 5 cards
@@ -72,7 +81,9 @@ public class DealCards : MonoBehaviour {
                 foreach (Card removing in discardCards)
                 {
                     var removingIndex = currentPlayer.GetComponent<PlayerScript>().getCardIndex(removing);
-                    currentPlayer.GetComponent<PlayerScript>().addCard(deck.GetComponent<DeckScript>().draw(), removingIndex);
+                    GameObject cardGameObject = currentPlayer.GetComponent<PlayerScript>().getCardAtIndex(removingIndex);
+                    discardPile.GetComponent<DiscardPileScript>().add(cardGameObject);
+                    currentPlayer.GetComponent<PlayerScript>().addCard(deck.GetComponent<DeckScript>().draw(), removingIndex);                  
                 }
             }
 
@@ -99,11 +110,11 @@ public class DealCards : MonoBehaviour {
         }
         getWinningHand();
 
-        resetTable();
-        //deal();
+        resultsMessage.SetActive(true);
+        controllerCanvas.SetActive(false);
     }
 
-    private void resetTable()
+    public void resetTable()
     {
         foreach (GameObject player in players)
         {
@@ -113,13 +124,18 @@ public class DealCards : MonoBehaviour {
             }
             player.GetComponent<PlayerScript>().resetHand();          
         }
-        discardPile.GetComponent<DiscardPileScript>().reset();
-        GameObject[] remainingCards = GameObject.FindGameObjectsWithTag("discardPile");
 
-        foreach (GameObject card in remainingCards)
+        discardPile.GetComponent<DiscardPileScript>().reset();
+        deck.GetComponent<DeckScript>().resetDeck();
+
+        GameObject[] reverseCards = GameObject.FindGameObjectsWithTag("discardPile");
+        foreach (GameObject rc in reverseCards)
         {
-            Destroy(card);
+            Destroy(rc);
         }
+
+        //call deal to start new hand.
+        deal();
     }
 
     private void getWinningHand()
