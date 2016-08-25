@@ -48,7 +48,9 @@ public class DealCards : MonoBehaviour {
         resultsMessage.SetActive(false);
         controllerCanvas.SetActive(true);
         // reset the current deck
+        deck.GetComponent<DeckScript>().createDeck();
         deck.GetComponent<DeckScript>().shuffle();
+
         //for each player deal 5 cards
         // TODO use the dealer index to start dealing to the next player.
         // TODO re write deal to deal one card at a time not 5, 5, 5, 5
