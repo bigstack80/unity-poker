@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class DealCards : MonoBehaviour {
 
@@ -45,6 +46,7 @@ public class DealCards : MonoBehaviour {
     // Manager method used to set the over all flow of the match
     public void deal()
     {
+        currentPlayerIndex = 0;
         resultsMessage.SetActive(false);
         controllerCanvas.SetActive(true);
         // reset the current deck
@@ -110,10 +112,10 @@ public class DealCards : MonoBehaviour {
 
             currentPlayerIndex = (currentPlayerIndex % 3) + 1;
         }
-        getWinningHand();
 
         resultsMessage.SetActive(true);
         controllerCanvas.SetActive(false);
+        getWinningHand();
     }
 
     public void resetTable()
@@ -195,8 +197,12 @@ public class DealCards : MonoBehaviour {
 
         if (winner.Count == 1)
         {
-            Debug.Log("Player " + winner[0].GetComponent<PlayerScript>().playerNumber + " Wins");
-            winner[0].GetComponent<PlayerScript>().hand.printResult();
+            Text textGameObject = GameObject.Find("ResultMessageText").GetComponent<Text>();
+            int winningPlayer = winner[0].GetComponent<PlayerScript>().playerNumber;
+            string winningHand = winner[0].GetComponent<PlayerScript>().hand.printResult();
+
+            textGameObject.text = "Player " + winningPlayer + " Wins with" + winningHand;
+            Debug.Log(winningPlayer + " " + "with" + winningHand);
         }
     }
 
