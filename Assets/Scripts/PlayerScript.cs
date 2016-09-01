@@ -12,6 +12,12 @@ public class PlayerScript : MonoBehaviour {
     public Vector3 offset;
     public Vector3 rotation;
 
+    private Vector3 location1 = new Vector3(-0.1f, 0.037f, -0.45f);
+    private Vector3 location2 = new Vector3(-0.02f, 0.037f, -0.45f);
+    private Vector3 location3 = new Vector3(0.06f, 0.037f, -0.45f);
+    private Vector3 location4 = new Vector3(0.14f, 0.037f, -0.45f);
+    private Vector3 location5 = new Vector3(0.22f, 0.037f, -0.45f);
+
 
     // Use this for initialization
     void Start () {
@@ -78,21 +84,6 @@ public class PlayerScript : MonoBehaviour {
         }
     }
 
-    public bool isPlayerCard(GameObject card)
-    {
-        if (playerNumber == 1)
-        {
-            foreach (GameObject c in unityCard)
-            {
-                if (/*c.unityMapping.Equals(card + "(Clone)")*/ "".Equals(""))
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     public int getCardIndex(GameObject card)
     {
         for (int i = 0; i < 5; i++)
@@ -135,22 +126,20 @@ public class PlayerScript : MonoBehaviour {
         {
             Debug.Log("Error sorting player Hand.");
         }
-        resetLocation();
+
+        if (playerNumber == 1)
+        {
+            resetLocation();
+        }       
     }
 
     public void resetLocation()
     {
-        int i = 0;
-        if (this.playerNumber == 1)
-        {
-            /*
-            foreach (GameObject card in this.cards)
-            {
-                GameObject cardGameObject = GameObject.Find(card.getUnityMapping() + "(Clone)");
-                cardGameObject.transform.position += offset * (i + 1);
-            }
-            */
-        }
+        this.unityCard[0].transform.position = location1;
+        this.unityCard[1].transform.position = location2;
+        this.unityCard[2].transform.position = location3;
+        this.unityCard[3].transform.position = location4;
+        this.unityCard[4].transform.position = location5;
     }
 
     public int getCardIndex(Card card)

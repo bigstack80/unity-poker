@@ -11,9 +11,18 @@ public class DeckScript : MonoBehaviour {
     // Use this for initialization
     void Start() {
 
+    }
+	
+	// Update is called once per frame
+	void Update () {
+	
+	}
+
+    public void createDeck()
+    {
         Vector3 handLocation = this.transform.position;
         cards = new List<GameObject>();
-        topOfDeck = (GameObject)Instantiate(Resources.Load("PlayingCard_Revers"), handLocation, Quaternion.Euler(270.0f,0.0f,0.0f));
+        topOfDeck = (GameObject)Instantiate(Resources.Load("PlayingCard_Revers"), handLocation, Quaternion.Euler(270.0f, 0.0f, 0.0f));
         topOfDeck.transform.position += offset;
         cards.Add((GameObject)Instantiate(Resources.Load("PlayingCards_2Club"), handLocation, Quaternion.Euler(270.0f, 0.0f, 0.0f)));
         cards.Last().GetComponent<CardScript>().setCard(new Card(Card.Value.TWO, Card.Suite.CLUBS));
@@ -119,12 +128,8 @@ public class DeckScript : MonoBehaviour {
         cards.Last().GetComponent<CardScript>().setCard(new Card(Card.Value.KING, Card.Suite.DIAMONDS));
         cards.Add((GameObject)Instantiate(Resources.Load("PlayingCards_ADiamond"), handLocation, Quaternion.Euler(270.0f, 0.0f, 0.0f)));
         cards.Last().GetComponent<CardScript>().setCard(new Card(Card.Value.ACE, Card.Suite.DIAMONDS));
+
     }
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
 
     // Shuffle the Card List
     public void shuffle()
