@@ -6,10 +6,11 @@ using UnityEngine.UI;
 public class DealCards : MonoBehaviour {
 
     GameObject[] players;
-    private GameObject discardImage;
     private GameObject discardPile;
-    private GameObject resultsMessage;
+    private GameObject dealButton;
+    private GameObject discardButton;
     private GameObject controllerCanvas;
+    private GameObject resultsCanvas;
 
     // used to keep track of the current dealer.
     public int dealerNumber;
@@ -26,15 +27,17 @@ public class DealCards : MonoBehaviour {
         GameObject player2 = GameObject.Find("Player2");
         GameObject player3 = GameObject.Find("Player3");
         GameObject player4 = GameObject.Find("Player4");
+        dealButton = GameObject.Find("Deal Button");
+        discardButton = GameObject.Find("Discard Button");
         discardPile = GameObject.Find("DiscardPile");
-        resultsMessage = GameObject.Find("ResultsCanvas");
-        controllerCanvas = GameObject.Find("ControllerCanvas");
+        resultsCanvas = GameObject.Find("Results Canvas");
+        controllerCanvas = GameObject.Find("Controller Canvas");
         deck = GameObject.Find("Deck");
         players = new GameObject[]{player1, player2, player3, player4};
         currentPlayerIndex = 0;
 
-        resultsMessage.SetActive(false);
-        controllerCanvas.SetActive(true);
+        resultsCanvas.SetActive(false);
+        controllerCanvas.SetActive(false);
     }
 	
 	// Update is called once per frame
@@ -43,12 +46,22 @@ public class DealCards : MonoBehaviour {
 
 	}
 
+    public void dealWraper()
+    {
+        GameObject.Find("Start Canvas").SetActive(false);
+        deal();
+    }
+
     // Manager method used to set the over all flow of the match
     public void deal()
     {
-        currentPlayerIndex = 0;
-        resultsMessage.SetActive(false);
         controllerCanvas.SetActive(true);
+        resultsCanvas.SetActive(false);
+
+        currentPlayerIndex = 0;
+        discardButton.GetComponent<Button>().interactable = true;
+        dealButton.GetComponent<Button>().interactable = false;
+
         // reset the current deck
         deck.GetComponent<DeckScript>().createDeck();
         deck.GetComponent<DeckScript>().shuffle();
@@ -105,6 +118,8 @@ public class DealCards : MonoBehaviour {
                             currentPlayer.GetComponent<PlayerScript>().replaceCard(deck.GetComponent<DeckScript>().draw(), discardIndex, card);
                             
                             discardPile.GetComponent<DiscardPileScript>().add(card);
+
+                            card.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
                         }
                     }
                 }
@@ -113,7 +128,7 @@ public class DealCards : MonoBehaviour {
             currentPlayerIndex = (currentPlayerIndex % 3) + 1;
         }
 
-        resultsMessage.SetActive(true);
+        resultsCanvas.SetActive(true);
         controllerCanvas.SetActive(false);
         getWinningHand();
     }
@@ -156,6 +171,10 @@ public class DealCards : MonoBehaviour {
         }
         isWinner();
         dealerNumber = (dealerNumber % 3) + 1;
+
+        players[1].GetComponent<PlayerScript>().showHand();
+        players[2].GetComponent<PlayerScript>().showHand();
+        players[3].GetComponent<PlayerScript>().showHand();
     }
 
     private void setPokerHand(GameObject player)

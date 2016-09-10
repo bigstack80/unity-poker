@@ -12,11 +12,11 @@ public class PlayerScript : MonoBehaviour {
     public Vector3 offset;
     public Vector3 rotation;
 
-    private Vector3 location1 = new Vector3(-0.1f, 0.037f, -0.45f);
-    private Vector3 location2 = new Vector3(-0.02f, 0.037f, -0.45f);
-    private Vector3 location3 = new Vector3(0.06f, 0.037f, -0.45f);
-    private Vector3 location4 = new Vector3(0.14f, 0.037f, -0.45f);
-    private Vector3 location5 = new Vector3(0.22f, 0.037f, -0.45f);
+    private Vector3 location1 = new Vector3(-0.20f, 0.037f, -0.45f);
+    private Vector3 location2 = new Vector3(-0.10f, 0.037f, -0.45f);
+    private Vector3 location3 = new Vector3(0.00f, 0.037f, -0.45f);
+    private Vector3 location4 = new Vector3(0.10f, 0.037f, -0.45f);
+    private Vector3 location5 = new Vector3(0.20f, 0.037f, -0.45f);
 
 
     // Use this for initialization
@@ -37,6 +37,8 @@ public class PlayerScript : MonoBehaviour {
             c.transform.eulerAngles = rotation;
             c.transform.position = handLocation;
             c.transform.position += offset * (index + 1);
+
+            c.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
             this.unityCard[index] = c;
         } else
         {
@@ -45,6 +47,19 @@ public class PlayerScript : MonoBehaviour {
             reverse.transform.position += offset * (index + 1);
             this.unityCard[index] = c;
         }       
+    }
+
+    public void showHand()
+    {
+        int i = 1;
+        foreach (GameObject card in unityCard)
+        {
+            card.transform.eulerAngles = rotation;
+            card.transform.position = handLocation;
+            card.transform.position += offset * (i++);
+
+            //card.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+        }
     }
 
     public void resetHand()
@@ -61,6 +76,8 @@ public class PlayerScript : MonoBehaviour {
             c.transform.eulerAngles = rotation;
             c.transform.position = new Vector3(oldCard.transform.position.x, oldCard.transform.position.y, oldCard.transform.position.z - .02f);
             this.unityCard[index] = c;
+
+            c.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
         }
         else
         {
